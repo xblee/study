@@ -17,7 +17,7 @@ app.use(async ctx => {
         `;
         ctx.body = html;
     } else if (ctx.url === '/' && ctx.method === 'POST') {
-        ctx.body = '接收到请求';
+        // ctx.body = '接收到请求';
         let pastData = await parsePostData(ctx);
         ctx.body = pastData;
     } else {
@@ -33,12 +33,26 @@ function parsePostData(ctx) {
                 postdata += data;
             });
             ctx.req.addListener('end', () => {
+                postdata = parseQueryStr(postdata);
                 resolve(postdata);
             });
         } catch (error) {
             reject(error);
         }
     });
+}
+
+function parseQueryStr(queryStr){
+    let queryData = {};
+    let queryList = queryStr.split('&');
+    console.log(queryList);
+    console.log(queryList.entries());
+    for(let [index,queryStr] of queryList.entries()){
+        let itemList = queryStr.split('=');
+        console.log(itemList);
+        queryData[itemList[0]] = decodeURIComponent(itemList[1]);
+    }
+    return queryData;
 }
 
 app.listen(3000, () => {
